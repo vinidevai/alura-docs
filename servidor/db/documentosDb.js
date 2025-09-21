@@ -1,4 +1,4 @@
-import { documentosColecao } from "./dbConnect.js";
+import { documentosColecao } from './dbConnect.js';
 
 function obterDocumentos() {
   const documentos = documentosColecao.find().toArray();
@@ -8,7 +8,7 @@ function obterDocumentos() {
 function adicionarDocumento(nome) {
   const resultado = documentosColecao.insertOne({
     nome,
-    texto: "",
+    texto: '',
   });
 
   return resultado;

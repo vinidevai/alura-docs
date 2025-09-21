@@ -1,6 +1,6 @@
 import { inserirLinkDocumento, removerLinkDocumento } from './index.js';
 
-const socket = io();
+const socket = io('http://localhost:3000/');
 
 socket.emit('obter_documentos', (documentos) => {
   documentos.forEach((documento) => {

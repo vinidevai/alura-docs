@@ -70,7 +70,7 @@ botaoVoltar.addEventListener('click', (event) => {
   emitirRemoverUsuario(nomeDocumento);
   setTimeout(() => {
     voltarPaginaAnterior(); 
-  }, 50); // 50ms (um tempo muito curto)
+  }, 50);
 })
 
 export { atualizaTextoEditor, alertarERedirecionar, onAuthSuccess, atualizarListaUsuarios };

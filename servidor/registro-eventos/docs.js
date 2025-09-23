@@ -8,47 +8,6 @@ import {
 } from '../db/documentosDb.js';
 import { findUser, getDetalhesUsuarios } from '../db/usuariosDb.js';
 
-async function removerUsuarioSeNaoEstiverEmOutraAba(socket, io, docName) {
-  // Encontra todos os sockets na sala do documento
-  const socketsNaSala = io.sockets.adapter.rooms.get(docName);
-
-  // Se não houver sockets na sala, remove o usuário
-  if (!socketsNaSala) {
-    const usuario = await findUser(socket.userId);
-    const userId = usuario._id;
-    await removeUsuarioDocumento(docName, userId);
-    await emitirAtualizacaoUsuarios(io, docName);
-    return;
-  }
-
-  const usuarioDesconectando = await findUser(socket.userId);
-  const userIdDesconectando = usuarioDesconectando._id;
-
-  let usuarioAindaPresente = false;
-
-  // Itera sobre os sockets para ver se o usuário ainda está presente
-  for (const socketId of socketsNaSala) {
-    const socketAtual = io.sockets.sockets.get(socketId);
-
-    // Verifica se o socket atual pertence ao mesmo usuário
-    const usuarioConectado = await findUser(socketAtual.userId);
-    const userIdConectado = usuarioConectado._id;
-
-    // Compara os _id's dos usuários
-    if (userIdConectado.equals(userIdDesconectando) && socketAtual.id !== socket.id) {
-        // Se o usuário for encontrado em outro socket, define a flag e para
-        usuarioAindaPresente = true;
-        break;
-    }
-  }
-
-  // Se o usuário não for encontrado em outra aba, remove-o
-  if (!usuarioAindaPresente) {
-    await removeUsuarioDocumento(docName, userIdDesconectando);
-    await emitirAtualizacaoUsuarios(io, docName);
-  }
-}
-
 async function emitirAtualizacaoUsuarios(io, docName) {
     const documento = await getUsuariosEmDocumento(docName); 
     const listaDeIds = documento?.usuarios || []; 
@@ -80,7 +39,6 @@ function eventosDocsPage(socket, io) {
     const userId = usuario._id
     
     if (docName && userId) {
-      // Verifique se o adapter está disponível
       if (io.sockets.adapter && io.sockets.adapter.rooms) {
         const socketsNaSala = io.sockets.adapter.rooms.get(docName);
         let usuarioAindaPresente = false;

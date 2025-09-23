@@ -3,19 +3,19 @@ import authUser from "../utils/authUser.js";
 import generateJwt from "../utils/generateJwt.js";
 
 function eventosLoginPage(socket, io) {
-  socket.on('user:auth', async ({ user, password }) => {
+  socket.on('user:authentication', async ({ user, password }) => {
     const usuario = await findUser(user);
 
     if(usuario) {
       const autenticado = authUser(password, usuario);
       if (autenticado) {
         const jwtToken = generateJwt({ user: user });   
-        socket.emit('auth:true', jwtToken)
+        socket.emit('authentication:true', jwtToken)
       } else {
-        socket.emit('auth:error')
+        socket.emit('authentication:error')
       }
     } else {
-      socket.emit('auth:false')
+      socket.emit('authentication:false')
     }
   })  
 }

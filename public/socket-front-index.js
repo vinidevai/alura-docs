@@ -1,6 +1,16 @@
 import { inserirLinkDocumento, removerLinkDocumento } from './index.js';
+import { getCookie } from './utils/cookies.js';
 
-const socket = io('http://localhost:3000/');
+const socket = io('http://localhost:3000/usuarios', {
+  auth: {
+    token: getCookie('jwtToken')
+  }
+});
+
+socket.on('connect_error', (error) => {
+  alert(error);
+  window.location.href = '/login/index.html';
+})
 
 socket.emit('obter_documentos', (documentos) => {
   documentos.forEach((documento) => {

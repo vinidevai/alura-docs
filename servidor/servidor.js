@@ -9,7 +9,6 @@ import './db/dbConnect.js';
 
 const app = express();
 const serverPort = process.env.SERVER_PORT;
-const reactPort = process.env.REACT_PORT;
 
 const caminhoAtual = url.fileURLToPath(import.meta.url);
 const diretorioPublico = path.join(caminhoAtual, '../..', 'public');
@@ -17,9 +16,6 @@ app.use(express.static(diretorioPublico));
 
 const servidorHttp = http.createServer(app);
 servidorHttp.listen(serverPort, () => console.log(`Servidor Main escutando na porta ${serverPort}`));
-
-const servidorHttp2 = http.createServer(app);
-servidorHttp2.listen(reactPort, () => console.log(`Servidor React escutando na porta ${reactPort}`));
 
 const io = new Server(servidorHttp, {
   cors: {

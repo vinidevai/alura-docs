@@ -1,3 +1,4 @@
+import { ObjectID, ObjectId } from 'mongodb';
 import { documentosColecao } from './dbConnect.js';
 
 function obterDocumentos() {
@@ -22,7 +23,7 @@ function encontrarDocumento(nome) {
   return documento;
 }
 
-function atualizaDocumento(nome, texto) {
+function atualizaTextoDocumento(nome, texto) {
   const atualizacao = documentosColecao.updateOne(
     {
       nome,
@@ -37,6 +38,42 @@ function atualizaDocumento(nome, texto) {
   return atualizacao;
 }
 
+function addUsuarioDocumento(nome, userId) {
+  const atualizacao = documentosColecao.updateOne(
+    {
+      nome,
+    },
+    {
+      $addToSet: {
+            usuarios: userId
+        },
+    }
+  );
+  return atualizacao;
+}
+
+async function removeUsuarioDocumento(nome, userId) {
+  const atualizacao = documentosColecao.updateOne(
+    {
+      nome,
+    },
+    {
+      $pull: {
+        usuarios: new ObjectId(userId)
+      },
+    }
+  );
+  return atualizacao;
+}
+
+function getUsuariosEmDocumento(docName) {
+  const busca = documentosColecao.findOne(
+    { nome: docName },
+    { projection: { usuarios: 1, _id: 0 } } 
+  );
+  return busca; 
+}
+
 function excluirDocumento(nome) {
   const resultado = documentosColecao.deleteOne({
     nome,
@@ -47,8 +84,11 @@ function excluirDocumento(nome) {
 
 export {
   encontrarDocumento,
-  atualizaDocumento,
+  atualizaTextoDocumento,
+  removeUsuarioDocumento,
+  addUsuarioDocumento,
+  getUsuariosEmDocumento,
   obterDocumentos,
   adicionarDocumento,
-  excluirDocumento,
+  excluirDocumento
 };

@@ -1,5 +1,6 @@
 import {
   emitirExcluirDocumento,
+  emitirRemoverUsuario,
   emitirTextoEditor,
   selecionarDocumento,
 } from './socket-front-documento.js';
@@ -10,10 +11,48 @@ const nomeDocumento = parametros.get('nome');
 const textoEditor = document.getElementById('editor-texto');
 const tituloDocumento = document.getElementById('titulo-documento');
 const botaoExcluir = document.getElementById('excluir-documento');
+const botaoVoltar = document.getElementById('botao-voltar');
+const containerUsuarios = document.getElementById('usuarios-conectados'); 
 
 tituloDocumento.textContent = nomeDocumento || 'Documento sem título';
 
-selecionarDocumento(nomeDocumento);
+function onAuthSuccess(payload) {
+  selecionarDocumento({
+    nomeDocumento,
+    user: payload.user
+  });
+}
+
+function voltarPaginaAnterior() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = '/';
+  }
+}
+
+function alertarERedirecionar(nome) {
+  if (nome === nomeDocumento) {
+    alert(`Documento ${nome} excluído!`);
+    voltarPaginaAnterior()
+  }
+}
+
+function atualizaTextoEditor(texto) {
+  textoEditor.value = texto;
+}
+
+function atualizarListaUsuarios(listaDeUsuarios) {
+  containerUsuarios.innerHTML = ''; 
+  
+  listaDeUsuarios.forEach(usuario => {
+    const item = document.createElement('li');
+    item.classList.add('list-group-item'); 
+    item.textContent = usuario.user; 
+    
+    containerUsuarios.appendChild(item);
+  });
+}
 
 textoEditor.addEventListener('keyup', () => {
   emitirTextoEditor({
@@ -22,19 +61,16 @@ textoEditor.addEventListener('keyup', () => {
   });
 });
 
-function atualizaTextoEditor(texto) {
-  textoEditor.value = texto;
-}
-
 botaoExcluir.addEventListener('click', () => {
   emitirExcluirDocumento(nomeDocumento);
 });
 
-function alertarERedirecionar(nome) {
-  if (nome === nomeDocumento) {
-    alert(`Documento ${nome} excluído!`);
-    window.location.href = '/';
-  }
-}
+botaoVoltar.addEventListener('click', (event) => {
+  event.preventDefault()
+  emitirRemoverUsuario(nomeDocumento);
+  setTimeout(() => {
+    voltarPaginaAnterior(); 
+  }, 50); // 50ms (um tempo muito curto)
+})
 
-export { atualizaTextoEditor, alertarERedirecionar };
+export { atualizaTextoEditor, alertarERedirecionar, onAuthSuccess, atualizarListaUsuarios };
